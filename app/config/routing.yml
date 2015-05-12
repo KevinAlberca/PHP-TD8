@@ -1,0 +1,4 @@
+user_list:
+  controller: WebSite\Controller\UserController:listUserAction
+home:
+  controller: WebSite\Controller\HomeController:homeAction
