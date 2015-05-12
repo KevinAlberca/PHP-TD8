@@ -15,7 +15,7 @@ namespace Website\Controller;
  *
  * @package Website\Controller
  */
-class UserController {
+class UserController extends AbstractClassController {
 
     /**
      * Recup all users and print it
@@ -23,32 +23,12 @@ class UserController {
      * @return array
      */
     public function listUserAction($request) {
-        //Use Doctrine DBAL here
 
-        /*****/
-        $config = new \Doctrine\DBAL\Configuration();
-
-
-        //for this array use config_dev.yml and YamlComponents
-        // http://symfony.com/fr/doc/current/components/yaml/introduction.html
-        $connectionParams = array(
-            'dbname' => 'mydb',
-            'user' => 'user',
-            'password' => 'secret',
-            'host' => 'localhost',
-            'driver' => 'pdo_mysql',
-        );
-        
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
-
-        // http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/data-retrieval-and-manipulation.html
-        // it's much better if you use QueryBuilder : http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/query-builder.html
-        $statement = $conn->prepare('SELECT * FROM user');
+        $statement = $this->getConnexion()->prepare('SELECT * FROM users');
 
 
         $statement->execute();
         $users = $statement->fetchAll();
-/******/     
 
         //you can return a Response object
         return [
@@ -66,7 +46,7 @@ class UserController {
     public function showUserAction($request) {
         //Use Doctrine DBAL here
 
-        $user = ...
+        $user = '...';
 
         //you can return a Response object
         return [
@@ -98,7 +78,7 @@ class UserController {
         //you should return a Response object
         return [
             'view' => 'WebSite/View/user/addUser.html.php',// => create the file
-            'user' => $user
+            'user' => '$user',
         ];
     }
 
