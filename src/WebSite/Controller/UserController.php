@@ -32,7 +32,7 @@ class UserController extends AbstractClassController {
 
         //you can return a Response object
         return [
-            'view' => 'WebSite/View/user/listUser.html.php', // should be Twig : 'WebSite/View/user/listUser.html.twig'
+            'view' => 'WebSite/View/user/listUser.html.twig', // should be Twig : 'WebSite/View/user/listUser.html.twig'
             'users' => $users
         ];
     }
@@ -44,9 +44,12 @@ class UserController extends AbstractClassController {
      * @return array
      */
     public function showUserAction($request) {
-        //Use Doctrine DBAL here
+        $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE id = :id');
+        @$statement->execute([
+            'id' => $request,
+        ]);
 
-        $user = '...';
+        $user = $statement->fetch();
 
         //you can return a Response object
         return [
