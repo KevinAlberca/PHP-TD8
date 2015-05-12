@@ -63,25 +63,38 @@ class UserController extends AbstractClassController {
      */
     public function addUser($request) {
         //Use Doctrine DBAL here
-
-
         if ($request['request']) { //if POST
-            //handle form with DBAL
-            //...
+# Check if username or email is already exist in DB
+            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name OR email = :email');
+            $check->execute([
+                'name' => $request['request']['username'],
+                'email' => $request['request']['useremail'],
+            ]);
 
-            //Redirect to show
-            //you should return a RedirectResponse object
-            return [
-                'redirect_to' => 'http://.......',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
+            $row = $check->fetch();
 
-            ];
+            var_dump($row);
+            if($row['user'] == 0){
+# Any users exist, we can register this username
+                $statement = $this->getConnexion()->prepare('INSERT INTO users(name, password, email, inscription_date) VALUES (:name, :password, :email, :inscription_date)');
+                $statement->execute([
+                    'name' => $request['request']['username'],
+                    'password' => sha1($request['request']['pwd']),
+                    'email' => $request['request']['useremail'],
+                    'inscription_date' => date('Y-m-d H:i:s'),
+                ]);
+
+                return [
+                    'redirect_to' => '?p=log_user',
+                ];
+            } else {
+
+            }
         }
-
-
         //you should return a Response object
         return [
-            'view' => 'WebSite/View/user/addUser.html.php',// => create the file
-            'user' => '$user',
+            'user' => @$row['user'],
+            'view' => 'WebSite/View/user/addUser.html.php',
         ];
     }
 
