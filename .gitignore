@@ -3,3 +3,5 @@
 /var/log/*
 .DS_Store
 .idea
+
+/app/config/config-dev.yml
