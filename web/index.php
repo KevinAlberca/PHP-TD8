@@ -33,6 +33,7 @@ if (!empty($routes[$page]['controller'])) {
 
 
 
+
 //ControllerClassName, end name is ...Controller
 $controller_class = $current_route[0];
 
@@ -61,6 +62,7 @@ if (!empty($response['redirect_to'])) {
      * Use Twig !
      */
     require __DIR__ . '/../src/' . $response['view'];
+
 } else {
 
     throw new Exception('response object is not complet');
