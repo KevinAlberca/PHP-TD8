@@ -1,2 +1,5 @@
 # SupInternetMVC
-very basic MVC for SupInternet Student, don't use it as it
+
+Base repository : https://github.com/NicolasBadey/SupInternetMVC
+
+This is the repository for my TD8
