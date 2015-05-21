@@ -87,8 +87,6 @@ class UserController extends AbstractClassController {
                 return [
                     'redirect_to' => '?p=log_user',
                 ];
-            } else {
-
             }
         }
         //you should return a Response object
@@ -113,8 +111,7 @@ class UserController extends AbstractClassController {
 
             //you should return a RedirectResponse object , redirect to list
             return [
-                'redirect_to' => '?p=home',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
-
+                'redirect_to' => '?p=logout_user',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
             ];
         }
     }
@@ -157,9 +154,13 @@ class UserController extends AbstractClassController {
     }
 
     public function logOutUserAction(){
-        return [
-            'view' => 'WebSite/View/user/logOutUser.html.php',
-        ];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+            $request['session'] = [];
+            return [
+                'redirect_to' => '?p=home',
+            ];
+        }
     }
 
 

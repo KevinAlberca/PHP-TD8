@@ -17,4 +17,4 @@ log_user:
    controller: WebSite\Controller\UserController:logUserAction
 
 logout_user:
-   controller: WebSite\Controller\UserController:logoutUserAction
+   controller: WebSite\Controller\UserController:logOutUserAction
