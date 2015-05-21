@@ -133,10 +133,12 @@ class UserController extends AbstractClassController {
 
             if($statement->fetch() == 1){
                 return [
+                    $this->addMessageFlash('success', 'Connexion réussie'),
                     'redirect_to' => '?p=home',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
                 ];
             } else {
                 echo 'pas de connexion';
+                $this->addMessageFlash('error', 'Aucun utilisateur trouvé');
             }
 
         } else {
@@ -157,7 +159,7 @@ class UserController extends AbstractClassController {
     }
 
 
-    public function addMessageFlash($type, $message){
+    private function addMessageFlash($type, $message){
         // autorise que 4 types de messages flash
         $types = ['success','error','alert','info'];
         if (!in_array($type, $types)) {
