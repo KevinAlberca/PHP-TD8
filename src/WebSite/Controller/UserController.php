@@ -47,8 +47,8 @@ class UserController extends AbstractClassController {
      */
     public function showUserAction($request) {
         $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE id = :id');
-        $statement->execute([
-            'id' => $request['query']['id'],
+        @$statement->execute([
+            'id' => $request,
         ]);
 
         $user = $statement->fetch();
@@ -157,7 +157,6 @@ class UserController extends AbstractClassController {
     }
 
     public function logOutUserAction(){
-        unset($_SESSION['user']);
         return [
             'view' => 'WebSite/View/user/logOutUser.html.php',
         ];
