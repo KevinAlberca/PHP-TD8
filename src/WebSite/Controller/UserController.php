@@ -107,38 +107,56 @@ class UserController extends AbstractClassController {
      */
     public function deleteUserAction($request) {
         //Use Doctrine DBAL here
+        if($request){
+
+            $statement = $this->getConnexion()->prepare('DELETE FROM users WHERE id = :id');
+            $statement->execute([
+               'id' => $request['session']['user']['id'],
+            ]);
 
 
+            //you should return a RedirectResponse object , redirect to list
+            return [
+                'redirect_to' => '?p=home',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
 
-        //you should return a RedirectResponse object , redirect to list
-        return [
-            'redirect_to' => 'http://.......',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
-
-        ];
+            ];
+        }
     }
 
     /**
      * Log User (Session) , add session in $request first (index.php)
      */
     public function logUserAction($request) {
+
+
         if ($request['request']) { //if POST
 
-            $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE name = :name AND password = :password');
-            $statement->execute([
+            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name AND password = :password');
+            $check->execute([
                 'name' => $request['request']['username'],
                 'password' => sha1($request['request']['pwd']),
             ]);
 
-            $statement->fetch();
+            $row = $check->fetch();
 
-            if($statement->fetch() == 1){
+            var_dump($row);
+            if($row['user'] == 1) {
+
+                $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE name = :name AND password = :password');
+                $statement->execute([
+                    'name' => $request['request']['username'],
+                    'password' => sha1($request['request']['pwd']),
+                ]);
+
                 return [
-                    $this->addMessageFlash('success', 'Connexion réussie'),
+                    'response' => $this->addMessageFlash('success', 'Connexion réussie'),
                     'redirect_to' => '?p=home',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
                 ];
             } else {
-                echo 'pas de connexion';
-                $this->addMessageFlash('error', 'Aucun utilisateur trouvé');
+                return [
+                    'response' => $this->addMessageFlash('error', 'Aucun utilisateur trouvé'),
+                    'view' => 'WebSite/view/user/logUser.html.php',
+                ];
             }
 
         } else {
