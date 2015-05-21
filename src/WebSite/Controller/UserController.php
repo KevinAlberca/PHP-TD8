@@ -24,7 +24,7 @@ class UserController extends AbstractClassController {
      *
      * @return array
      */
-    public function listUserAction($request) {
+    public function listUserAction() {
 
         $statement = $this->getConnexion()->prepare('SELECT * FROM users');
 
@@ -41,14 +41,14 @@ class UserController extends AbstractClassController {
 
 
     /**
-     * swho one user thanks to his id : &id=...
+     * show one user thanks to his id : &id=...
      *
      * @return array
      */
     public function showUserAction($request) {
         $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE id = :id');
-        @$statement->execute([
-            'id' => $request,
+        $statement->execute([
+            'id' => $request['query']['id'],
         ]);
 
         $user = $statement->fetch();
@@ -68,22 +68,19 @@ class UserController extends AbstractClassController {
         //Use Doctrine DBAL here
         if ($request['request']) { //if POST
 # Check if username or email is already exist in DB
-            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name OR email = :email');
+            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name');
             $check->execute([
                 'name' => $request['request']['username'],
-                'email' => $request['request']['useremail'],
             ]);
 
             $row = $check->fetch();
 
-            var_dump($row);
             if($row['user'] == 0){
 # Any users exist, we can register this username
-                $statement = $this->getConnexion()->prepare('INSERT INTO users(name, password, email, inscription_date) VALUES (:name, :password, :email, :inscription_date)');
+                $statement = $this->getConnexion()->prepare('INSERT INTO users(name, password, inscription_date) VALUES (:name, :password, :inscription_date)');
                 $statement->execute([
                     'name' => $request['request']['username'],
                     'password' => sha1($request['request']['pwd']),
-                    'email' => $request['request']['useremail'],
                     'inscription_date' => date('Y-m-d H:i:s'),
                 ]);
 
@@ -114,7 +111,6 @@ class UserController extends AbstractClassController {
                'id' => $request['session']['user']['id'],
             ]);
 
-
             //you should return a RedirectResponse object , redirect to list
             return [
                 'redirect_to' => '?p=home',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
@@ -126,11 +122,38 @@ class UserController extends AbstractClassController {
     /**
      * Log User (Session) , add session in $request first (index.php)
      */
+
     public function logUserAction($request) {
         if ($request['request']) { //if POST
+# Check if username or email is already exist in DB
+            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name AND password = :password');
+            $check->execute([
+                'name' => $request['request']['username'],
+                'password' => sha1($request['request']['pwd']),
+            ]);
 
+            $row = $check->fetch();
 
+            if($row['user'] == 1){
+# The user exist, we can connect him
+                $req = $this->getConnexion()->prepare('SELECT * FROM users WHERE name = :name AND password = :password');
+                $req->execute([
+                    'name' => $request['request']['username'],
+                    'password' => sha1($request['request']['pwd']),
+                ]);
+
+                $request['session']['user'] = $req->fetch();
+                return [
+                   'redirect_to' => '?p=home',
+                ];
+
+            } else {
+                $this->addMessageFlash('error', 'Aucun utilisateur n\'a été trouvé');
+            }
         }
+        return [
+            'view' => 'WebSite/View/user/logUser.html.php',
+        ];
     }
 
     public function logOutUserAction(){
