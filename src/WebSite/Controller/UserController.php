@@ -7,6 +7,7 @@
  */
 
 namespace Website\Controller;
+use Website\Model\UserManager;
 
 
 /**
@@ -46,17 +47,12 @@ class UserController extends AbstractClassController {
      * @return array
      */
     public function showUserAction($request) {
-        $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE id = :id');
-        @$statement->execute([
-            'id' => $request,
-        ]);
+        $userManager = new UserManager($this->getConnexion());
 
-        $user = $statement->fetch();
+        $user = $userManager->showUser($request);
 
-
-        //you can return a Response object
         return [
-            'view' => 'WebSite/View/user/showUser.html.php', // should be Twig : 'WebSite/View/user/listUser.html.twig'
+            'view' => 'WebSite/View/user/showUser.html.php',
             'user' => $user
         ];
     }
