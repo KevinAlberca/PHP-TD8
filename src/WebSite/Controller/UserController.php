@@ -8,6 +8,7 @@
 
 namespace Website\Controller;
 
+
 /**
  * Class UserController
  *
@@ -16,6 +17,7 @@ namespace Website\Controller;
  * @package Website\Controller
  */
 class UserController extends AbstractClassController {
+
 
     /**
      * Recup all users and print it
@@ -32,7 +34,7 @@ class UserController extends AbstractClassController {
 
         //you can return a Response object
         return [
-            'view' => 'WebSite/View/user/listUser.html.twig', // should be Twig : 'WebSite/View/user/listUser.html.twig'
+            'view' => 'WebSite/View/user/listUser.html.php', // should be Twig : 'WebSite/View/user/listUser.html.twig'
             'users' => $users
         ];
     }
@@ -51,6 +53,7 @@ class UserController extends AbstractClassController {
 
         $user = $statement->fetch();
 
+
         //you can return a Response object
         return [
             'view' => 'WebSite/View/user/showUser.html.php', // should be Twig : 'WebSite/View/user/listUser.html.twig'
@@ -61,7 +64,7 @@ class UserController extends AbstractClassController {
     /**
      * Add User and redirect on listUser after
      */
-    public function addUser($request) {
+    public function addUserAction($request) {
         //Use Doctrine DBAL here
         if ($request['request']) { //if POST
 # Check if username or email is already exist in DB
@@ -93,16 +96,16 @@ class UserController extends AbstractClassController {
         }
         //you should return a Response object
         return [
-            'user' => @$row['user'],
             'view' => 'WebSite/View/user/addUser.html.php',
         ];
+
     }
 
 
     /**
      * Delete User and redirect on listUser after
      */
-    public function deleteUser($request) {
+    public function deleteUserAction($request) {
         //Use Doctrine DBAL here
 
 
@@ -117,12 +120,29 @@ class UserController extends AbstractClassController {
     /**
      * Log User (Session) , add session in $request first (index.php)
      */
-    public function logUser($request) {
+    public function logUserAction($request) {
         if ($request['request']) { //if POST
-            //handle form with DBAL
-            //...
 
+            $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE name = :name AND password = :password');
+            $statement->execute([
+                'name' => $request['request']['username'],
+                'password' => sha1($request['request']['pwd']),
+            ]);
 
+            $statement->fetch();
+
+            if($statement->fetch() == 1){
+                return [
+                    'redirect_to' => '?p=home',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
+                ];
+            } else {
+                echo 'pas de connexion';
+            }
+
+        } else {
+            return [
+                'view' => 'WebSite/View/user/logUser.html.php',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
+            ];
         }
 
 
@@ -133,10 +153,22 @@ class UserController extends AbstractClassController {
 
         //Redirect to list or home
         //you should return a RedirectResponse object
-        return [
-            'redirect_to' => 'http://.......',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
 
-        ];
+    }
 
+
+    public function addMessageFlash($type, $message){
+        // autorise que 4 types de messages flash
+        $types = ['success','error','alert','info'];
+        if (!in_array($type, $types)) {
+            return false;
+        }
+        // on vérifie que le type existe
+        if (!isset($_SESSION['flashBag'][$type])) {
+            //si non on le créé avec un Array vide
+            $_SESSION['flashBag'][$type] = [];
+        }
+        // on ajoute le message
+        $_SESSION['flashBag'][$type][] = $message;
     }
 }
