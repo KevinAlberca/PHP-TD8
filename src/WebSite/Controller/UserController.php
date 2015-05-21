@@ -127,53 +127,17 @@ class UserController extends AbstractClassController {
      * Log User (Session) , add session in $request first (index.php)
      */
     public function logUserAction($request) {
-
-
         if ($request['request']) { //if POST
 
-            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name AND password = :password');
-            $check->execute([
-                'name' => $request['request']['username'],
-                'password' => sha1($request['request']['pwd']),
-            ]);
 
-            $row = $check->fetch();
-
-            var_dump($row);
-            if($row['user'] == 1) {
-
-                $statement = $this->getConnexion()->prepare('SELECT * FROM users WHERE name = :name AND password = :password');
-                $statement->execute([
-                    'name' => $request['request']['username'],
-                    'password' => sha1($request['request']['pwd']),
-                ]);
-
-                return [
-                    'response' => $this->addMessageFlash('success', 'Connexion réussie'),
-                    'redirect_to' => '?p=home',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
-                ];
-            } else {
-                return [
-                    'response' => $this->addMessageFlash('error', 'Aucun utilisateur trouvé'),
-                    'view' => 'WebSite/view/user/logUser.html.php',
-                ];
-            }
-
-        } else {
-            return [
-                'view' => 'WebSite/View/user/logUser.html.php',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
-            ];
         }
+    }
 
-
-        //take FlashBag system from
-        // https://github.com/NicolasBadey/SupInternetTweeter/blob/master/model/functions.php
-        // line 87 : https://github.com/NicolasBadey/SupInternetTweeter/blob/master/index.php
-        // and manage error and success
-
-        //Redirect to list or home
-        //you should return a RedirectResponse object
-
+    public function logOutUserAction(){
+        unset($_SESSION['user']);
+        return [
+            'view' => 'WebSite/View/user/logOutUser.html.php',
+        ];
     }
 
 
