@@ -1,7 +1,7 @@
 <?php
-
-session_destroy();
-
-return [
-    'redirect_to' => '?p=home'
-];
+/**
+ * Created by PhpStorm.
+ * User: AwH
+ * Date: 25/05/15
+ * Time: 11:22
+ */

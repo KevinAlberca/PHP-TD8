@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nico
- * Date: 23/04/2015
- * Time: 23:45
- */
 
 namespace Website\Controller;
 use Website\Model\UserManager;
@@ -27,16 +21,12 @@ class UserController extends AbstractClassController {
      */
     public function listUserAction() {
 
-        $statement = $this->getConnexion()->prepare('SELECT * FROM users');
+        $userManager = new UserManager($this->getConnexion());
+        $user = $userManager->listUser();
 
-
-        $statement->execute();
-        $users = $statement->fetchAll();
-
-        //you can return a Response object
         return [
             'view' => 'WebSite/View/user/listUser.html.php', // should be Twig : 'WebSite/View/user/listUser.html.twig'
-            'users' => $users
+            'users' => $user
         ];
     }
 
@@ -48,8 +38,7 @@ class UserController extends AbstractClassController {
      */
     public function showUserAction($request) {
         $userManager = new UserManager($this->getConnexion());
-
-        $user = $userManager->showUser($request);
+        $user = $userManager->showUser($request['request']['id']);
 
         return [
             'view' => 'WebSite/View/user/showUser.html.php',
@@ -61,34 +50,6 @@ class UserController extends AbstractClassController {
      * Add User and redirect on listUser after
      */
     public function addUserAction($request) {
-        //Use Doctrine DBAL here
-        if ($request['request']) { //if POST
-# Check if username or email is already exist in DB
-            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name');
-            $check->execute([
-                'name' => $request['request']['username'],
-            ]);
-
-            $row = $check->fetch();
-
-            if($row['user'] == 0){
-# Any users exist, we can register this username
-                $statement = $this->getConnexion()->prepare('INSERT INTO users(name, password, inscription_date) VALUES (:name, :password, :inscription_date)');
-                $statement->execute([
-                    'name' => $request['request']['username'],
-                    'password' => sha1($request['request']['pwd']),
-                    'inscription_date' => date('Y-m-d H:i:s'),
-                ]);
-
-                return [
-                    'redirect_to' => '?p=log_user',
-                ];
-            }
-        }
-        //you should return a Response object
-        return [
-            'view' => 'WebSite/View/user/addUser.html.php',
-        ];
 
     }
 
@@ -141,7 +102,7 @@ class UserController extends AbstractClassController {
                 ];
 
             } else {
-                $this->addMessageFlash('error', 'Aucun utilisateur n\'a été trouvé');
+                MessageFlashController::addMessage('error', 'Aucun utilisateur n\'a été trouvé');
             }
         }
         return [
@@ -159,19 +120,4 @@ class UserController extends AbstractClassController {
         }
     }
 
-
-    private function addMessageFlash($type, $message){
-        // autorise que 4 types de messages flash
-        $types = ['success','error','alert','info'];
-        if (!in_array($type, $types)) {
-            return false;
-        }
-        // on vérifie que le type existe
-        if (!isset($_SESSION['flashBag'][$type])) {
-            //si non on le créé avec un Array vide
-            $_SESSION['flashBag'][$type] = [];
-        }
-        // on ajoute le message
-        $_SESSION['flashBag'][$type][] = $message;
-    }
 }

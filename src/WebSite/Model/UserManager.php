@@ -9,20 +9,23 @@ class UserManager {
     }
 
     public function listUser(){
-        $this->bdd->prepare('SELECT * FROM users');
+        $statement = $this->bdd->prepare('SELECT * FROM users');
+        $statement->execute();
+
+        return $statement->fetchAll();
 
     }
 
     function showUser($id){
         $statement = $this->bdd->prepare('SELECT * FROM users WHERE id = :id');
-        @$statement->execute([
+        $statement->execute([
             'id' => $id
         ]);
 
         return $statement->fetch();
     }
 
-    public function addUser(){
+    public function addUser($name, $pass){
 
     }
 
