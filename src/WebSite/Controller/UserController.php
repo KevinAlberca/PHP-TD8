@@ -38,7 +38,7 @@ class UserController extends AbstractClassController {
      */
     public function showUserAction($request) {
         $userManager = new UserManager($this->getConnexion());
-        $user = $userManager->showUser($request['request']['id']);
+        $user = $userManager->showUser($request['query']['id']);
 
         return [
             'view' => 'WebSite/View/user/showUser.html.php',
