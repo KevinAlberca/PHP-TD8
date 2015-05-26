@@ -29,7 +29,7 @@ class UserController extends AbstractClassController {
         $user = $userManager->listUser();
 
         return [
-            'view' => 'WebSite/View/user/listUser.html.php', // should be Twig : 'WebSite/View/user/listUser.html.twig'
+            'view' => 'WebSite/View/user/listUser.html.php',
             'users' => $user
         ];
     }
@@ -53,6 +53,7 @@ class UserController extends AbstractClassController {
     /**
      * Add User and redirect on listUser after
      */
+
     public function addUserAction($request){
         if($request['request']) {
             $userManager = new UserManager($this->getConnexion());
@@ -74,18 +75,14 @@ class UserController extends AbstractClassController {
     /**
      * Delete User and redirect on listUser after
      */
+
     public function deleteUserAction($request) {
-        //Use Doctrine DBAL here
         if($request){
+            $userManager = new UserManager($this->getConnexion());
+            $userManager->deleteUser($request['session']['user']['id']);
 
-            $statement = $this->getConnexion()->prepare('DELETE FROM users WHERE id = :id');
-            $statement->execute([
-               'id' => $request['session']['user']['id'],
-            ]);
-
-            //you should return a RedirectResponse object , redirect to list
             return [
-                'redirect_to' => '?p=logout_user',// => manage it in index.php !! URL should be generate by Routing functions thanks to routing config
+                'redirect_to' => '?p=list_user',
             ];
         }
     }
@@ -102,7 +99,7 @@ class UserController extends AbstractClassController {
             if($check['user'] == 1) {
                 $log = $userManager->logUser($request['request']['name'], $request['request']['pwd']);
 
-                $_SESSION['user'] = $log;
+                $request['session'] = $_SESSION['user'] = $log;
 
                 return [
                     'redirect_to' => '?p=list_user',

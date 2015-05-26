@@ -43,8 +43,11 @@ class UserManager {
         return $statement->fetch();
     }
 
-    public function deleteUser(){
-
+    public function deleteUser($id){
+        $statement = $this->bdd->prepare('DELETE FROM users WHERE id = :id');
+        $statement->execute([
+            'id' => $id,
+        ]);
     }
 
     public function countUserByName($name){
