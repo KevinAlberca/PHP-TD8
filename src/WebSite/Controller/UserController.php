@@ -95,35 +95,23 @@ class UserController extends AbstractClassController {
      */
 
     public function logUserAction($request) {
-        if ($request['request']) { //if POST
-# Check if username or email is already exist in DB
-            $check = $this->getConnexion()->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name AND password = :password');
-            $check->execute([
-                'name' => $request['request']['username'],
-                'password' => sha1($request['request']['pwd']),
-            ]);
+        if($request['request']) {
+            $userManager = new UserManager($this->getConnexion());
+            $check = $userManager->countUserByNameAndPassword($request['request']['name'], $request['request']['pwd']);
 
-            $row = $check->fetch();
+            if($check['user'] == 1) {
+                $log = $userManager->logUser($request['request']['name'], $request['request']['pwd']);
 
-            if($row['user'] == 1){
-# The user exist, we can connect him
-                $req = $this->getConnexion()->prepare('SELECT * FROM users WHERE name = :name AND password = :password');
-                $req->execute([
-                    'name' => $request['request']['username'],
-                    'password' => sha1($request['request']['pwd']),
-                ]);
+                $_SESSION['user'] = $log;
 
-                $request['session']['user'] = $req->fetch();
                 return [
-                   'redirect_to' => '?p=home',
+                    'redirect_to' => '?p=list_user',
+                    'view' => '../src/WebSite/View/user/logUser.html.php',
                 ];
-
-            } else {
-                MessageFlashController::addMessage('error', 'Aucun utilisateur n\'a été trouvé');
             }
         }
         return [
-            'view' => 'WebSite/View/user/logUser.html.php',
+            'view' => '../src/WebSite/View/user/logUser.html.php',
         ];
     }
 
