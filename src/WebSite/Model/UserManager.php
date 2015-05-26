@@ -26,7 +26,11 @@ class UserManager {
     }
 
     public function addUser($name, $pass){
-
+        $statement = $this->bdd->prepare("INSERT INTO users (name, password, inscription_date) VALUES (:name, :password, NOW())");
+        $statement->execute([
+            'name' => $name,
+            'password' => sha1($pass),
+        ]);
     }
 
     public function logUser(){
@@ -35,6 +39,15 @@ class UserManager {
 
     public function deleteUser(){
 
+    }
+
+    public function countUserByName($name){
+        $statement = $this->bdd->prepare('SELECT COUNT(*) as user FROM users WHERE name = :name');
+        $statement->execute([
+            'name' => $name
+        ]);
+
+        return $statement->fetch();
     }
 
 }

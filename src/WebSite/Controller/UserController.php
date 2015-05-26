@@ -14,13 +14,17 @@ use Website\Model\UserManager;
 class UserController extends AbstractClassController {
 
 
+    public function __construct(){
+
+    }
+
     /**
      * Recup all users and print it
      *
      * @return array
      */
-    public function listUserAction() {
 
+    public function listUserAction() {
         $userManager = new UserManager($this->getConnexion());
         $user = $userManager->listUser();
 
@@ -49,8 +53,21 @@ class UserController extends AbstractClassController {
     /**
      * Add User and redirect on listUser after
      */
-    public function addUserAction($request) {
+    public function addUserAction($request){
+        if($request['request']) {
+            $userManager = new UserManager($this->getConnexion());
+            $check = $userManager->countUserByName($request['request']['name']);
 
+            if($check['user'] == 0) {
+                $userManager->addUser($request['request']['name'], $request['request']['pwd']);
+                return [
+                    'redirect_to' => '?p=list_user',
+                ];
+            }
+        }
+        return [
+            'view' => '../src/WebSite/View/user/addUser.html.php',
+        ];
     }
 
 
